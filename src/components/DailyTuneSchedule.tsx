@@ -151,22 +151,22 @@ export const DailyTuneSchedule: React.FC = () => {
               <span aria-hidden="true">·</span>
               <span className="text-amber-800 font-mono-numbers">ID: {activeSubscription.id}</span>
             </div>
-            <h2 className="text-2xl font-display font-bold text-stone-900 mt-1">
-              Daily Meal Tuning & Cutoff Manager
+            <h2 className="text-xl sm:text-2xl font-display font-bold text-stone-900 mt-1">
+              Daily Meal Schedule
             </h2>
             <p className="text-xs text-stone-600 mt-1">
-              Change roti counts (any large quantity), swap grain varieties, add extra sabzi & accompaniments, or tune delivery slots before cutoff time.
+              Select any day below to change roti quantity, choose roti variety, or pause your meal.
             </p>
           </div>
 
           <div className="flex items-center gap-3 self-start sm:self-auto bg-stone-50 border border-stone-200 px-3.5 py-2 rounded-lg">
             <div className="text-right text-xs">
-              <div className="text-stone-500">Unused Rollovers</div>
-              <div className="font-mono-numbers font-bold text-amber-800">₹{activeSubscription.creditsEarned} Saved</div>
+              <div className="text-stone-500 font-medium">Credits Saved</div>
+              <div className="font-mono-numbers font-bold text-emerald-700">₹{activeSubscription.creditsEarned}</div>
             </div>
             <div className="h-7 w-px bg-stone-200"></div>
             <div className="text-right text-xs">
-              <div className="text-stone-500">Days Left</div>
+              <div className="text-stone-500 font-medium">Days Left</div>
               <div className="font-mono-numbers font-bold text-stone-900">{activeSubscription.remainingDays} Days</div>
             </div>
           </div>
@@ -175,8 +175,8 @@ export const DailyTuneSchedule: React.FC = () => {
         {/* 7-Day Date Selector Ribbon */}
         <div className="pt-4">
           <div className="text-xs font-semibold text-stone-700 mb-2 flex items-center justify-between">
-            <span>Select Day to View or Tune Schedule:</span>
-            <span className="text-stone-400 font-normal">All times are local</span>
+            <span>Select a day to view or edit:</span>
+            <span className="text-stone-400 font-normal">Cutoffs: 10:30 AM & 6:30 PM</span>
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
@@ -265,20 +265,19 @@ export const DailyTuneSchedule: React.FC = () => {
                 <div className="text-xs font-semibold">
                   {isSkipped ? (
                     <span className="text-stone-500 flex items-center gap-1">
-                      <span>Meal Paused (Credits Saved)</span>
+                      <span>Meal Paused — Wallet Credited</span>
                     </span>
                   ) : isCutoffPassed ? (
-                    <span className="text-amber-800 flex items-center gap-1 bg-amber-100/90 px-2 py-0.5 rounded">
-                      <Lock className="w-3 h-3 text-amber-700" />
-                      <span>Cutoff Passed ({cutoffLabel}) · Baking</span>
+                    <span className="text-amber-800 flex items-center gap-1 bg-amber-100/90 px-2 py-0.5 rounded font-bold">
+                      <span>In Kitchen Preparation ({cutoffLabel})</span>
                     </span>
                   ) : (
                     <span className="text-emerald-700 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                       <Clock className="w-3 h-3 text-emerald-600" />
                       <span>
                         {isSelectedDateToday
-                          ? `${minsLeft}m left before ${cutoffLabel}`
-                          : `Tuning open until ${cutoffLabel}`}
+                          ? `${minsLeft}m left to edit (${cutoffLabel})`
+                          : `Editable until ${cutoffLabel}`}
                       </span>
                     </span>
                   )}
@@ -307,7 +306,7 @@ export const DailyTuneSchedule: React.FC = () => {
 
                   {/* Primary Count display */}
                   <div className="text-right shrink-0">
-                    <div className="text-xs text-stone-500 font-medium">Primary Roti</div>
+                    <div className="text-xs text-stone-500 font-medium">Roti Quantity</div>
                     <div className="text-2xl font-mono-numbers font-bold text-amber-800">
                       {isSkipped ? 0 : meal.rotiCount} <span className="text-xs font-normal text-stone-500">pcs</span>
                     </div>
@@ -382,9 +381,9 @@ export const DailyTuneSchedule: React.FC = () => {
                   <div className="p-3 rounded-lg bg-stone-100 border border-stone-200 text-xs text-stone-700 flex items-start gap-2.5">
                     <Flame className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
                     <div>
-                      <div className="font-semibold text-stone-900">Order Locked with Kitchen</div>
+                      <div className="font-semibold text-stone-900">Order Confirmed for Kitchen</div>
                       <div className="text-stone-600 text-[11px] mt-0.5">
-                        Cutoff time was {cutoffLabel}. The kitchen has begun cold stone flour kneading and flame puffing for maximum freshness. This order cannot be modified or cancelled.
+                        Cutoff time was {cutoffLabel}. Fresh dough preparation has begun for delivery.
                       </div>
                     </div>
                   </div>
@@ -394,11 +393,11 @@ export const DailyTuneSchedule: React.FC = () => {
                 {!isCutoffPassed && (
                   <div className="space-y-4 pt-2 border-t border-stone-100">
                     
-                    {/* Quantity Control with Direct Numeric Input + Quick Preset Buttons */}
+                    {/* Quantity Control */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-stone-700">
-                          Adjust Roti Count for this meal:
+                        <span className="text-xs font-semibold text-stone-800">
+                          Roti Quantity:
                         </span>
 
                         <div className="flex items-center gap-1.5">
@@ -409,38 +408,37 @@ export const DailyTuneSchedule: React.FC = () => {
                                 rotiCount: Math.max(1, meal.rotiCount - 1),
                               })
                             }
-                            className="w-8 h-8 rounded border border-stone-300 bg-white hover:bg-stone-50 disabled:opacity-40 flex items-center justify-center text-stone-800 transition-colors shadow-2xs"
+                            className="w-8 h-8 rounded border border-stone-300 bg-white hover:bg-stone-50 disabled:opacity-40 flex items-center justify-center text-stone-800 transition-colors shadow-2xs cursor-pointer"
                             title="Decrease 1 roti"
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </button>
 
-                          {/* Direct Editable Numeric Input up to 1000 */}
                           <input
                             type="number"
                             min={1}
-                            max={1000}
+                            max={100}
                             disabled={isSkipped}
                             value={meal.rotiCount}
                             onChange={(e) => {
                               const val = parseInt(e.target.value, 10);
                               if (!isNaN(val) && val >= 1) {
                                 updateScheduleMeal(meal.date, meal.mealSlot, {
-                                  rotiCount: Math.min(1000, val),
+                                  rotiCount: Math.min(100, val),
                                 });
                               }
                             }}
-                            className="w-16 text-center font-mono-numbers font-extrabold text-sm text-stone-900 bg-amber-50/80 border border-amber-300 rounded py-1 focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-2xs"
+                            className="w-14 text-center font-mono-numbers font-extrabold text-sm text-stone-900 bg-amber-50/80 border border-amber-300 rounded py-1 focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-2xs"
                           />
 
                           <button
-                            disabled={isSkipped || meal.rotiCount >= 1000}
+                            disabled={isSkipped || meal.rotiCount >= 100}
                             onClick={() =>
                               updateScheduleMeal(meal.date, meal.mealSlot, {
-                                rotiCount: Math.min(1000, meal.rotiCount + 1),
+                                rotiCount: Math.min(100, meal.rotiCount + 1),
                               })
                             }
-                            className="w-8 h-8 rounded border border-stone-300 bg-white hover:bg-stone-50 disabled:opacity-40 flex items-center justify-center text-stone-800 transition-colors shadow-2xs"
+                            className="w-8 h-8 rounded border border-stone-300 bg-white hover:bg-stone-50 disabled:opacity-40 flex items-center justify-center text-stone-800 transition-colors shadow-2xs cursor-pointer"
                             title="Increase 1 roti"
                           >
                             <Plus className="w-3.5 h-3.5" />
@@ -448,20 +446,20 @@ export const DailyTuneSchedule: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Quick Quantity Presets Buttons (+2, +5, +10, +50, +100, +500) */}
+                      {/* Quick Quantity Presets Buttons (+1, +2, +5, +10) */}
                       {!isSkipped && (
                         <div className="flex items-center justify-between text-[11px] gap-1.5 pt-1">
                           <span className="text-stone-500 font-medium shrink-0">Quick Add:</span>
                           <div className="flex items-center gap-1 flex-wrap">
-                            {[2, 5, 10, 50, 100, 500].map((preset) => (
+                            {[1, 2, 5, 10].map((preset) => (
                               <button
                                 key={preset}
                                 onClick={() =>
                                   updateScheduleMeal(meal.date, meal.mealSlot, {
-                                    rotiCount: Math.min(1000, meal.rotiCount + preset),
+                                    rotiCount: Math.min(100, meal.rotiCount + preset),
                                   })
                                 }
-                                className="px-2 py-0.5 rounded bg-amber-100/80 hover:bg-amber-200 text-amber-900 font-bold border border-amber-300/80 transition-colors text-[10px]"
+                                className="px-2.5 py-0.5 rounded bg-amber-100/80 hover:bg-amber-200 text-amber-900 font-bold border border-amber-300/80 transition-colors text-[11px] cursor-pointer"
                               >
                                 +{preset}
                               </button>
@@ -471,10 +469,10 @@ export const DailyTuneSchedule: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Swap Roti Variety */}
+                    {/* Select Roti Variety */}
                     <div>
-                      <div className="text-xs font-medium text-stone-700 mb-1.5">
-                        Swap Primary Roti Variety:
+                      <div className="text-xs font-semibold text-stone-800 mb-1.5">
+                        Select Roti Variety:
                       </div>
                       <select
                         disabled={isSkipped}
@@ -494,12 +492,12 @@ export const DailyTuneSchedule: React.FC = () => {
                       </select>
                     </div>
 
-                    {/* ADD OTHER ITEMS (Sabzi / Dal / Extra Bread) TO THIS MEAL */}
+                    {/* ADD EXTRA ITEMS (Sabzi / Dal / Khichdi) */}
                     {!isSkipped && (
                       <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 space-y-2">
                         <div className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
                           <PlusCircle className="w-3.5 h-3.5 text-amber-700" />
-                          <span>Add Extra Sabzi, Dal or Accompaniments to Delivery:</span>
+                          <span>Add Extra Sabzi, Dal or Rice to Delivery:</span>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -513,7 +511,7 @@ export const DailyTuneSchedule: React.FC = () => {
                             }
                             className="flex-1 text-xs bg-white border border-stone-300 rounded-lg p-2 text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-500"
                           >
-                            <option value="">-- Choose Side Dish / Extra Item --</option>
+                            <option value="">-- Select extra item to add --</option>
                             {menuItems.map((item) => (
                               <option key={item.id} value={item.id}>
                                 {item.name} ({item.packSize}) - ₹{item.price}
@@ -590,17 +588,17 @@ export const DailyTuneSchedule: React.FC = () => {
                       {isSkipped ? (
                         <button
                           onClick={() => unskipMealForDate(meal.date, meal.mealSlot)}
-                          className="w-full py-2 px-3 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs transition-colors flex items-center justify-center gap-2"
+                          className="w-full py-2 px-3 rounded-lg bg-[#3B170B] hover:bg-[#2B1006] text-[#FEF3C7] font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
-                          <span>Reactivate Meal for Kitchen</span>
+                          <span>Resume Meal Delivery</span>
                         </button>
                       ) : (
                         <button
                           onClick={() => skipMealForDate(meal.date, meal.mealSlot)}
-                          className="w-full py-2 px-3 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs transition-colors border border-stone-200 flex items-center justify-center gap-2"
+                          className="w-full py-2 px-3 rounded-lg bg-stone-100 hover:bg-amber-50 text-stone-800 hover:text-amber-900 font-semibold text-xs transition-all border border-stone-300 hover:border-amber-300 flex items-center justify-center gap-2 cursor-pointer"
                         >
-                          <span>Skip Meal Today (Get ₹36 Wallet Credit)</span>
+                          <span>Pause Meal Today (Get ₹36 Wallet Refund)</span>
                         </button>
                       )}
                     </div>
@@ -614,27 +612,27 @@ export const DailyTuneSchedule: React.FC = () => {
         })}
       </div>
 
-      {/* Clear Rules & Transparency Callout */}
-      <div className="bg-stone-100/70 rounded-xl p-5 border border-stone-200 text-xs text-stone-700 space-y-2">
-        <div className="font-semibold text-stone-900 text-sm flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-amber-700" />
-          <span>How Cutoff Times Guarantee Unmatched Freshness</span>
+      {/* Simple Rules Callout */}
+      <div className="bg-stone-100/80 rounded-xl p-4 sm:p-5 border border-stone-200 text-xs text-stone-700 space-y-2">
+        <div className="font-bold text-stone-900 text-sm flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-700" />
+          <span>Simple Meal Schedule Rules</span>
         </div>
-        <p className="text-stone-600 leading-relaxed">
-          Unlike commercial mess kitchens that store prepared rotis in heat lamps or plastic dabbas, <strong>RottiBox</strong> rolls, tosses, and flame-puffs every single roti precisely 25 minutes before dispatch.
+        <p className="text-stone-600 text-xs leading-relaxed">
+          Every roti is rolled and flame-puffed fresh right before your delivery slot.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-stone-800">
-          <div className="p-2.5 rounded bg-white border border-stone-200">
-            <strong>Morning Tuning (Before 10:30 AM):</strong>
-            <p className="text-stone-500 text-[11px] mt-0.5">Adjust lunch quantity, switch flour type, or pause with 100% rollover credits.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-stone-800">
+          <div className="p-3 rounded-lg bg-white border border-stone-200">
+            <strong className="text-stone-900 font-bold block mb-0.5">Lunch Changes (Before 10:30 AM):</strong>
+            <p className="text-stone-500 text-[11px]">Adjust lunch rotis or pause for 100% wallet credit.</p>
           </div>
-          <div className="p-2.5 rounded bg-white border border-stone-200">
-            <strong>Evening Tuning (Before 06:30 PM):</strong>
-            <p className="text-stone-500 text-[11px] mt-0.5">Adjust dinner rotis for dinner guests or travel pause before baking begins.</p>
+          <div className="p-3 rounded-lg bg-white border border-stone-200">
+            <strong className="text-stone-900 font-bold block mb-0.5">Dinner Changes (Before 06:30 PM):</strong>
+            <p className="text-stone-500 text-[11px]">Adjust dinner rotis or pause before fresh baking begins.</p>
           </div>
-          <div className="p-2.5 rounded bg-white border border-stone-200">
-            <strong>Rollover Guarantee:</strong>
-            <p className="text-stone-500 text-[11px] mt-0.5">Skipped meals never expire; credits can be used anytime for regular on-demand orders.</p>
+          <div className="p-3 rounded-lg bg-white border border-stone-200">
+            <strong className="text-stone-900 font-bold block mb-0.5">Instant Wallet Refund:</strong>
+            <p className="text-stone-500 text-[11px]">Paused meal credits never expire and can be used anytime.</p>
           </div>
         </div>
       </div>

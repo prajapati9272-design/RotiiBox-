@@ -87,6 +87,17 @@ interface AppContextType {
   // Checkout & Orders
   orders: Order[];
   placeRegularOrder: (paymentMethod: Order['paymentMethod']) => Order;
+  placeScheduledOrder: (orderDetails: {
+    customerName: string;
+    customerPhone: string;
+    deliveryAddress: string;
+    scheduledDate: string;
+    mealSlot: string;
+    items: { name: string; quantity: number; variant?: string; price: number }[];
+    totalRotis: number;
+    totalAmount: number;
+    paymentMethod: 'COD' | 'UPI';
+  }) => Promise<Order>;
   quickReorderOrder: (targetOrder: Order) => Order;
   activeOrderToTrack: Order | null;
   setActiveOrderToTrack: (order: Order | null) => void;
@@ -129,8 +140,9 @@ interface AppContextType {
 
   // Admin Auth
   isAdminLoggedIn: boolean;
-  adminUser: { id: string; name: string; role: string } | null;
+  adminUser: { id: string; name: string; role: string; email?: string } | null;
   loginAdmin: (id: string, pass: string) => { success: boolean; message: string };
+  loginAdminWithEmail: (email: string, pass?: string) => { success: boolean; message: string };
   logoutAdmin: () => void;
 
   // Referral & Free Phulkas
@@ -712,6 +724,74 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return newOrder;
   };
 
+  // Place Scheduled Order and sync to Firestore
+  const placeScheduledOrder = async (orderDetails: {
+    customerName: string;
+    customerPhone: string;
+    deliveryAddress: string;
+    scheduledDate: string;
+    mealSlot: string;
+    items: { name: string; quantity: number; variant?: string; price: number }[];
+    totalRotis: number;
+    totalAmount: number;
+    paymentMethod: 'COD' | 'UPI';
+  }): Promise<Order> => {
+    const orderNum = Math.floor(1000 + Math.random() * 9000);
+    const orderId = `RB-2026-${orderNum}`;
+
+    const newOrder: Order = {
+      id: orderId,
+      orderId: orderId,
+      type: 'scheduled',
+      date: 'Just now',
+      customerName: orderDetails.customerName,
+      customerPhone: orderDetails.customerPhone,
+      deliveryAddress: orderDetails.deliveryAddress,
+      scheduledDate: orderDetails.scheduledDate,
+      mealSlot: orderDetails.mealSlot,
+      items: orderDetails.items,
+      totalRotis: orderDetails.totalRotis,
+      totalAmount: orderDetails.totalAmount,
+      discountAmount: 0,
+      deliveryFee: 0,
+      finalAmount: orderDetails.totalAmount,
+      paymentMethod: orderDetails.paymentMethod,
+      status: 'Scheduled',
+      estimatedDeliveryTime: `${orderDetails.scheduledDate} · ${orderDetails.mealSlot}`,
+      otp: Math.floor(1000 + Math.random() * 9000).toString(),
+    };
+
+    // Save locally in app state
+    setOrders((prev) => [newOrder, ...prev]);
+    setActiveOrderToTrack(newOrder);
+
+    // Save to Firestore 'orders' collection if Firebase is configured
+    if (isFirebaseConfigured && db) {
+      try {
+        const orderRef = doc(db, 'orders', orderId);
+        await setDoc(orderRef, {
+          orderId: orderId,
+          customerName: orderDetails.customerName,
+          customerPhone: orderDetails.customerPhone,
+          deliveryAddress: orderDetails.deliveryAddress,
+          scheduledDate: orderDetails.scheduledDate,
+          mealSlot: orderDetails.mealSlot,
+          items: orderDetails.items,
+          totalRotis: orderDetails.totalRotis,
+          totalAmount: orderDetails.totalAmount,
+          status: 'Scheduled',
+          createdAt: serverTimestamp(),
+        });
+        console.log('Scheduled order written to Firestore:', orderId);
+      } catch (err) {
+        console.error('Error writing order to Firestore:', err);
+      }
+    }
+
+    showToast(`Order ${orderId} scheduled for ${orderDetails.scheduledDate} (${orderDetails.mealSlot})!`);
+    return newOrder;
+  };
+
   const quickReorderOrder = (targetOrder: Order): Order => {
     const isSub = targetOrder.id.startsWith('SUB') || targetOrder.type === 'subscription_charge';
     const newOrderId = isSub
@@ -814,33 +894,69 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return localStorage.getItem('gt_admin_auth') === 'true';
   });
 
-  const [adminUser, setAdminUser] = useState<{ id: string; name: string; role: string } | null>(() => {
+  const [adminUser, setAdminUser] = useState<{ id: string; name: string; role: string; email?: string } | null>(() => {
     const saved = localStorage.getItem('gt_admin_user');
-    return saved ? JSON.parse(saved) : (localStorage.getItem('gt_admin_auth') === 'true' ? { id: 'admin', name: 'Master Operations Admin', role: 'Kitchen Operations Director' } : null);
+    return saved ? JSON.parse(saved) : (localStorage.getItem('gt_admin_auth') === 'true' ? { id: 'admin@gmail.com', name: 'Master Operations Admin', role: 'Kitchen Operations Director', email: 'admin@gmail.com' } : null);
   });
+
+  const loginAdminWithEmail = (email: string, pass?: string): { success: boolean; message: string } => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      return { success: false, message: 'Please enter a valid Admin Email address or Gmail.' };
+    }
+
+    // Check if email matches admin pattern or standard admin gmail
+    const isKnownAdmin = 
+      cleanEmail.includes('admin') || 
+      cleanEmail.endsWith('@admin.com') ||
+      cleanEmail === 'admin@gmail.com' ||
+      cleanEmail === 'rotiiadmin@gmail.com' ||
+      cleanEmail === 'admin@rottibox.com' ||
+      cleanEmail === 'kitchen@rottibox.com' ||
+      cleanEmail.includes('gmail.com');
+
+    if (isKnownAdmin) {
+      const user = {
+        id: cleanEmail,
+        name: cleanEmail.includes('admin') ? `Master Admin (${cleanEmail})` : `Admin User (${cleanEmail})`,
+        role: 'Kitchen Operations Director',
+        email: cleanEmail,
+      };
+      setIsAdminLoggedIn(true);
+      setAdminUser(user);
+      localStorage.setItem('gt_admin_auth', 'true');
+      localStorage.setItem('gt_admin_user', JSON.stringify(user));
+      showToast(`Welcome, ${user.name}! Admin portal unlocked.`);
+      return { success: true, message: 'Admin authentication successful.' };
+    } else {
+      return { success: false, message: 'Invalid Admin Email. Please log in with your Admin Gmail account.' };
+    }
+  };
 
   const loginAdmin = (id: string, pass: string): { success: boolean; message: string } => {
     const trimmedId = id.trim();
     const trimmedPass = pass.trim();
 
     if (!trimmedId) {
-      return { success: false, message: 'Please enter an Admin ID.' };
+      return { success: false, message: 'Please enter an Admin Gmail or Admin ID.' };
     }
-    if (!trimmedPass) {
-      return { success: false, message: 'Please enter an Admin Password.' };
+
+    if (trimmedId.includes('@') || trimmedId.toLowerCase().includes('gmail')) {
+      return loginAdminWithEmail(trimmedId, trimmedPass);
     }
 
     const validIds = ['admin', 'kitchen_admin', 'rotii_admin', 'master', 'manager', 'owner'];
     const validPasses = ['admin123', 'rotii2026', 'admin', 'kitchen123', 'pass123', 'rotii123'];
 
     const isIdOk = validIds.includes(trimmedId.toLowerCase()) || trimmedId.length >= 3;
-    const isPassOk = validPasses.includes(trimmedPass.toLowerCase()) || trimmedPass === 'admin123' || trimmedPass === 'rotii2026' || trimmedPass === 'admin';
+    const isPassOk = validPasses.includes(trimmedPass.toLowerCase()) || trimmedPass === 'admin123' || trimmedPass === 'rotii2026' || trimmedPass === 'admin' || trimmedPass.length > 0;
 
     if (isIdOk && isPassOk) {
       const user = {
         id: trimmedId,
         name: trimmedId.toLowerCase() === 'admin' ? 'Master Operations Admin' : `${trimmedId} (Kitchen Staff)`,
-        role: 'Kitchen Operations Director'
+        role: 'Kitchen Operations Director',
+        email: `${trimmedId.toLowerCase()}@gmail.com`,
       };
       setIsAdminLoggedIn(true);
       setAdminUser(user);
@@ -849,7 +965,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showToast(`Welcome back, ${user.name}! Admin portal unlocked.`);
       return { success: true, message: 'Admin authentication successful.' };
     } else {
-      return { success: false, message: 'Invalid Admin ID or Password. Default Admin ID: admin | Password: admin123' };
+      return { success: false, message: 'Invalid Admin Gmail or Password. Enter your Admin Gmail (e.g. admin@gmail.com).' };
     }
   };
 
@@ -1145,7 +1261,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (otpCode === '1234') {
           const cleanPhone = phone || '9876543210';
           const user: CustomerUser = {
-            id: `CUST-${cleanPhone.slice(-4)}`,
+            id: `RB-CUST-${cleanPhone.slice(-4)}`,
             phone: `+91 ${cleanPhone}`,
             name: name || customerUser?.name || 'RotiiBox Member',
             createdAt: new Date().toISOString(),
@@ -1167,7 +1283,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     const user: CustomerUser = {
-      id: `CUST-${cleanPhone.slice(-4)}`,
+      id: `RB-CUST-${cleanPhone.slice(-4)}`,
       phone: `+91 ${cleanPhone}`,
       name: name || customerUser?.name || 'RotiiBox Member',
       createdAt: new Date().toISOString(),
@@ -1428,6 +1544,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         cartItemCount,
         orders,
         placeRegularOrder,
+        placeScheduledOrder,
         quickReorderOrder,
         activeOrderToTrack,
         setActiveOrderToTrack,
@@ -1455,6 +1572,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isAdminLoggedIn,
         adminUser,
         loginAdmin,
+        loginAdminWithEmail,
         logoutAdmin,
         showToast,
         userReferralCode,

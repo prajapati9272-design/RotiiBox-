@@ -1,6 +1,6 @@
 import React from 'react';
 import { RottiBoxLogo } from './RottiBoxLogo';
-import { Lock, ShieldCheck, ChefHat, Gift } from 'lucide-react';
+import { ShieldCheck, ChefHat, Gift } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 interface FooterProps {
@@ -40,7 +40,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
               >
                 <ChefHat className="w-3.5 h-3.5 text-[#FF8A3D]" />
                 <span>Kitchen & Admin Portal</span>
-                <Lock className="w-3 h-3 text-[#C49A6C]" />
               </button>
             )}
           </div>

@@ -18,7 +18,9 @@ import {
   Award,
   ChevronDown,
   ChevronUp,
-  Flame
+  Flame,
+  Mail,
+  ChefHat
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ROTTI_POINTS_REWARDS } from '../data/mockData';
@@ -31,6 +33,8 @@ export const CustomerAuthModal: React.FC = () => {
     sendCustomerOTP, 
     verifyCustomerOTP, 
     logoutCustomer,
+    isAdminLoggedIn,
+    loginAdminWithEmail,
     activeSubscription,
     orders,
     rottiPoints,
@@ -41,6 +45,7 @@ export const CustomerAuthModal: React.FC = () => {
   const [step, setStep] = useState<'phone' | 'otp' | 'profile'>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -274,6 +279,41 @@ export const CustomerAuthModal: React.FC = () => {
                 />
               </div>
 
+              {/* Email / Gmail Input (Optional for initial registration, required for Admin) */}
+              <div>
+                <label className="block text-xs font-bold text-[#2B1408] mb-1">Email / Gmail Address (Optional)</label>
+                <div className="relative flex items-center">
+                  <Mail className="w-4 h-4 text-[#8B5E3C] absolute left-3 pointer-events-none" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="e.g. rahul@gmail.com or admin@gmail.com"
+                    className="w-full bg-[#FAF4EB] border border-[#DFCBB5] rounded-xl pl-9 pr-3.5 py-2 text-xs text-[#2B1408] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Admin Gmail Login Quick Trigger */}
+              {(email.toLowerCase().includes('admin') || email.endsWith('@admin.com') || email === 'admin@gmail.com') && (
+                <div className="p-2.5 bg-[#FEF3C7] border border-[#FDE68A] rounded-xl text-[#78350F] text-xs flex items-center justify-between gap-2 shadow-2xs">
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <ChefHat className="w-4 h-4 text-[#D97706]" />
+                    <span>Admin Gmail Detected</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      loginAdminWithEmail(email || 'admin@gmail.com');
+                      closeCustomerAuthModal();
+                    }}
+                    className="px-2.5 py-1 bg-[#3B170B] text-[#FEF3C7] rounded-lg text-[11px] font-bold hover:bg-[#2B1006] transition-all cursor-pointer"
+                  >
+                    Login as Admin
+                  </button>
+                </div>
+              )}
+
               {/* Phone Input with +91 Country Code */}
               <div>
                 <label className="block text-xs font-bold text-[#2B1408] mb-1">Mobile Number *</label>
@@ -427,183 +467,59 @@ export const CustomerAuthModal: React.FC = () => {
           )}
 
           {/* ====================================================
-              STEP 3: LOGGED IN PROFILE VIEW
+              STEP 3: SIMPLE CLEAN PROFILE VIEW
              ==================================================== */}
           {step === 'profile' && customerUser && (
             <div className="space-y-4">
               
-              {/* User Identity Card */}
-              <div className="bg-[#FAF4EB] border border-[#DFCBB5] rounded-2xl p-4 flex items-center gap-3 relative">
-                <div className="w-12 h-12 rounded-full bg-[#3B170B] text-[#FEF3C7] font-bold text-lg flex items-center justify-center shrink-0 border-2 border-[#D97706]">
+              {/* Simple User Identity Header */}
+              <div className="bg-[#FAF4EB] border border-[#DFCBB5] rounded-2xl p-4 flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-full bg-[#3B170B] text-[#FEF3C7] font-bold text-lg flex items-center justify-center shrink-0 border-2 border-[#D97706] shadow-xs">
                   {customerUser.name ? customerUser.name.charAt(0).toUpperCase() : 'U'}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <h4 className="font-display font-bold text-sm text-[#2B1408] truncate">
-                      {customerUser.name || 'RotiiBox Foodie'}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h4 className="font-extrabold text-base text-[#2B1408] truncate">
+                      {customerUser.name || 'RotiiBox Customer'}
                     </h4>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="bg-[#FEF3C7] text-[#78350F] border border-[#FDE68A] text-[10px] font-extrabold px-2 py-0.5 rounded-md font-mono shrink-0">
+                      ID: {customerUser.id.startsWith('RB-') ? customerUser.id : `RB-CUST-${customerUser.id.slice(-4).toUpperCase()}`}
+                    </span>
                   </div>
-                  <p className="text-xs font-mono text-[#8B5E3C]">{customerUser.phone}</p>
-                  <span className="inline-block text-[9px] font-bold text-[#D97706] bg-[#FEF3C7] px-2 py-0.2 rounded-md mt-0.5 border border-[#FDE68A] truncate max-w-[200px]">
-                    {customerUser.id}
+                  <p className="text-xs font-mono font-medium text-[#8B5E3C] mt-0.5">
+                    {customerUser.phone}
+                  </p>
+                </div>
+              </div>
+
+              {/* Simple Account Summary Cards */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white border border-[#DFCBB5] rounded-2xl p-3.5 text-center shadow-2xs">
+                  <span className="text-[10px] font-bold text-[#8B5E3C] uppercase tracking-wider block mb-1">
+                    Total Orders
+                  </span>
+                  <span className="text-base font-extrabold text-[#3B170B] font-mono">
+                    {orders.length} Placed
+                  </span>
+                </div>
+
+                <div className="bg-white border border-[#DFCBB5] rounded-2xl p-3.5 text-center shadow-2xs">
+                  <span className="text-[10px] font-bold text-[#8B5E3C] uppercase tracking-wider block mb-1">
+                    RottiPoints
+                  </span>
+                  <span className="text-base font-extrabold text-[#D97706] font-mono">
+                    {rottiPoints} Pts 👑
                   </span>
                 </div>
               </div>
 
-              {/* Account Quick Stats */}
-              <div className="grid grid-cols-2 gap-2.5 text-center">
-                <div className="bg-white border border-[#DFCBB5] rounded-xl p-2.5">
-                  <span className="text-[10px] font-bold text-[#8B5E3C] uppercase block mb-0.5">Active Subscription</span>
-                  <span className="text-xs font-bold text-[#2B1408] block truncate">
-                    {activeSubscription ? activeSubscription.planName : 'No Active Plan'}
-                  </span>
-                </div>
-
-                <div className="bg-white border border-[#DFCBB5] rounded-xl p-2.5">
-                  <span className="text-[10px] font-bold text-[#8B5E3C] uppercase block mb-0.5">Total Orders</span>
-                  <span className="text-xs font-bold text-[#2B1408] block font-mono">
-                    {orders.length} Orders
-                  </span>
-                </div>
-              </div>
-
-              {/* RottiPoints Crown Loyalty Balance Banner */}
-              <div className="bg-gradient-to-r from-[#3B170B] via-[#4A1E0E] to-[#2B1006] text-[#FEF3C7] rounded-2xl p-4 shadow-lg border border-[#D97706]/40 space-y-3 relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-[#D97706]/20 border border-[#D97706] text-[#D97706] flex items-center justify-center font-bold shadow-2xs">
-                      <Crown className="w-5 h-5 text-[#F59E0B]" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#FDE68A] block">
-                        RottiPoints Loyalty Balance
-                      </span>
-                      <div className="text-xl font-extrabold text-white font-mono flex items-center gap-1.5">
-                        <span>{rottiPoints}</span>
-                        <span className="text-xs font-normal text-[#FDE68A]">RottiPoints 👑</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowPointsHistory(!showPointsHistory)}
-                    className="text-[10px] font-bold bg-white/10 hover:bg-white/20 text-[#FEF3C7] px-2.5 py-1.5 rounded-lg border border-white/20 flex items-center gap-1 transition-colors cursor-pointer"
-                  >
-                    <History className="w-3.5 h-3.5 text-[#D97706]" />
-                    <span>Log</span>
-                    {showPointsHistory ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                  </button>
-                </div>
-
-                <div className="bg-[#2B1006]/70 rounded-xl p-2.5 text-[11px] text-[#FDE68A] flex items-center gap-2 border border-[#5C2712]">
-                  <Sparkles className="w-4 h-4 text-[#F59E0B] shrink-0" />
-                  <span>
-                    <strong>Earn +150 RottiPoints</strong> on every subscription plan renewal or wallet recharge!
-                  </span>
-                </div>
-              </div>
-
-              {/* RottiPoints Transaction History Log */}
-              {showPointsHistory && (
-                <div className="bg-white border border-[#DFCBB5] rounded-xl p-3 space-y-2 max-h-48 overflow-y-auto shadow-2xs">
-                  <div className="text-[11px] font-bold text-[#2B1408] uppercase tracking-wider flex items-center justify-between border-b border-[#EFE3D3] pb-1">
-                    <span>Loyalty Points Log</span>
-                    <span className="text-[10px] text-[#8B5E3C] font-normal">{rottiPointsHistory.length} entries</span>
-                  </div>
-                  {rottiPointsHistory.length === 0 ? (
-                    <div className="text-xs text-stone-500 text-center py-2">No points history yet.</div>
-                  ) : (
-                    <div className="space-y-1.5">
-                      {rottiPointsHistory.map((tx) => (
-                        <div key={tx.id} className="flex items-center justify-between text-xs p-2 bg-[#FAF4EB] rounded-lg">
-                          <div className="min-w-0 flex-1 pr-2">
-                            <div className="font-semibold text-[#2B1408] truncate text-[11px]">{tx.description}</div>
-                            <div className="text-[10px] text-[#8B5E3C]">{tx.date}</div>
-                          </div>
-                          <span className={`font-mono font-bold text-xs shrink-0 ${tx.type === 'earned' ? 'text-emerald-700' : 'text-amber-800'}`}>
-                            {tx.type === 'earned' ? `+${tx.points}` : `-${tx.points}`}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Redeem Points for Free Rotis & Benefits Grid */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-[#2B1408] uppercase tracking-wider flex items-center gap-1.5">
-                    <Gift className="w-4 h-4 text-[#D97706]" />
-                    Redeem Points for Free Rotis
-                  </span>
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
-                    Instant Wallet & Roti Credit
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {ROTTI_POINTS_REWARDS.map((reward) => {
-                    const canAfford = rottiPoints >= reward.pointsRequired;
-                    return (
-                      <div
-                        key={reward.id}
-                        className={`p-3 rounded-xl border transition-all flex flex-col justify-between space-y-2 ${
-                          canAfford 
-                            ? 'bg-white border-[#DFCBB5] hover:border-[#D97706] shadow-2xs' 
-                            : 'bg-[#FAF4EB]/60 border-stone-200 opacity-80'
-                        }`}
-                      >
-                        <div>
-                          <div className="flex items-start justify-between gap-1 mb-1">
-                            <span className="font-bold text-xs text-[#2B1408] leading-snug">
-                              {reward.title}
-                            </span>
-                            {reward.badge && (
-                              <span className="text-[9px] font-extrabold bg-[#D97706] text-white px-1.5 py-0.2 rounded-md shrink-0">
-                                {reward.badge}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-[10px] text-[#8B5E3C] leading-tight">
-                            {reward.description}
-                          </p>
-                        </div>
-
-                        <div className="pt-1.5 border-t border-[#EFE3D3] flex items-center justify-between gap-2">
-                          <div className="font-mono text-xs font-bold text-[#78350F] flex items-center gap-1">
-                            <Coins className="w-3.5 h-3.5 text-[#D97706]" />
-                            <span>{reward.pointsRequired} pts</span>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => redeemRottiPoints(reward.id)}
-                            disabled={!canAfford}
-                            className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${
-                              canAfford
-                                ? 'bg-[#3B170B] hover:bg-[#2B1006] text-[#FEF3C7] shadow-2xs active:scale-95 cursor-pointer'
-                                : 'bg-stone-200 text-stone-500 cursor-not-allowed'
-                            }`}
-                          >
-                            {canAfford ? 'Redeem' : `Need ${reward.pointsRequired - rottiPoints} pts`}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-2 space-y-2">
+              {/* Simple Clean Actions */}
+              <div className="pt-2 space-y-2.5">
                 <button
                   type="button"
                   onClick={closeCustomerAuthModal}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+                  className="w-full py-3 px-4 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer active:scale-95"
                 >
                   <span>Continue Ordering Fresh Rotis</span>
                 </button>
@@ -614,10 +530,10 @@ export const CustomerAuthModal: React.FC = () => {
                     logoutCustomer();
                     closeCustomerAuthModal();
                   }}
-                  className="w-full py-2.5 px-4 rounded-xl bg-white border border-red-200 text-red-600 hover:bg-red-50 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-2xl bg-white border border-stone-300 text-stone-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  <span>Sign Out from Device</span>
+                  <span>Sign Out</span>
                 </button>
               </div>
 

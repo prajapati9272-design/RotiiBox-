@@ -1,5 +1,5 @@
 import React from 'react';
-import { Store, Calendar, Bike, ShoppingBag, SlidersHorizontal, Lock, ShieldCheck, User } from 'lucide-react';
+import { Store, Calendar, Bike, ShoppingBag, SlidersHorizontal, ShieldCheck, User, ChefHat } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 interface MobileBottomNavProps {

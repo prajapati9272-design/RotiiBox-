@@ -49,11 +49,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const quantityInCart = cartItem ? cartItem.quantity : 0;
 
   return (
-    <div className={`flex flex-col justify-between rounded-2xl p-2 sm:p-2.5 transition-all group h-full ${
-      isLimited
-        ? 'bg-gradient-to-b from-[#FFFDF7] via-[#FFF9EE] to-[#FFF2E2] border border-[#FDBA74] hover:border-[#EA580C] shadow-xs hover:shadow-md ring-1 ring-[#EA580C]/20'
-        : 'bg-[#FFFDF9] border border-[#EFE3D3] hover:border-[#D97706]/50 hover:shadow-md'
-    }`}>
+    <div className="flex flex-col justify-between rounded-2xl p-2 sm:p-2.5 transition-all group h-full bg-[#FFFDF9] border border-[#EFE3D3] hover:border-[#D97706]/50 hover:shadow-md">
       
       {/* Upper Section: Image Container */}
       <div>
@@ -92,21 +88,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             />
           </button>
 
-          {/* Admin Photo Change Shortcut Button */}
-          {isAdminLoggedIn && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsGalleryOpen(true);
-              }}
-              className="absolute top-2.5 right-11 z-20 px-2 py-1 bg-[#D97706] hover:bg-[#B45309] text-white text-[10px] font-bold rounded-lg shadow-sm flex items-center gap-1 transition-transform active:scale-95 cursor-pointer"
-              title="Change item photo from gallery"
-            >
-              <Images className="w-3 h-3" />
-              <span>Photo</span>
-            </button>
-          )}
+
 
           {/* Top-Right: Pure Veg Icon */}
           <div className="absolute top-2.5 right-2.5 z-10">
@@ -115,15 +97,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           </div>
 
-          {/* Limited Time Tag / Standard Badge on Photo */}
-          {isLimited ? (
-            <div className="absolute top-2.5 left-9.5 z-10 flex items-center gap-1">
-              <span className="bg-gradient-to-r from-[#EA580C] to-[#D97706] text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-md shadow-xs tracking-wider uppercase flex items-center gap-1 border border-amber-200/40">
-                <Clock className="w-2.5 h-2.5 shrink-0" />
-                Limited Time
-              </span>
-            </div>
-          ) : item.badgeText ? (
+          {/* Standard Badge on Photo */}
+          {item.badgeText ? (
             <div className="absolute top-2.5 left-9.5 z-10">
               <span className="bg-[#2B1408]/85 backdrop-blur-xs text-[#FEF3C7] text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-2xs tracking-wide">
                 {item.badgeText}
@@ -187,7 +162,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         
         <div>
           {/* Product Title */}
-          <h3 className="font-display font-semibold text-xs sm:text-sm text-[#2B1408] line-clamp-1 leading-snug">
+          <h3 className="font-display font-semibold text-xs sm:text-sm text-[#2B1408] leading-snug break-words">
             {item.name}
           </h3>
 

@@ -3,6 +3,8 @@ import { useApp } from '../context/AppContext';
 import { RegularMenuItem, Order, RotiSpreadOption } from '../types';
 import { ImageGalleryModal } from './ImageGalleryModal';
 import { compressImageFile } from '../utils/imageCompressor';
+import { doc, setDoc } from 'firebase/firestore';
+import { db, isFirebaseConfigured } from '../lib/firebase';
 import { 
   LayoutDashboard, 
   UtensilsCrossed, 
@@ -81,7 +83,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStorefront }) =>
   } = useApp();
 
   // Active Admin Tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'catalog' | 'orders' | 'subscriptions' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'dispatch_queue' | 'catalog' | 'orders' | 'subscriptions' | 'settings'>('dispatch_queue');
 
   // Search & Filter state in catalog
   const [catalogSearch, setCatalogSearch] = useState('');
@@ -165,7 +167,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStorefront }) =>
         popular: editingItem.popular || false,
         canSubscribe: editingItem.canSubscribe ?? true,
         badgeText: editingItem.badgeText || '',
-        imageUrl: editingItem.imageUrl || ''
+        imageUrl: editingItem.imageUrl || '',
+        addOns: editingItem.addOns || []
       });
       showToast(`Updated item: ${editingItem.name}`);
     } else {
@@ -187,7 +190,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStorefront }) =>
         popular: editingItem.popular || false,
         canSubscribe: editingItem.canSubscribe ?? true,
         badgeText: editingItem.badgeText || 'Freshly Made',
-        imageUrl: editingItem.imageUrl || 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=600&auto=format&fit=crop&q=80'
+        imageUrl: editingItem.imageUrl || 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=600&auto=format&fit=crop&q=80',
+        addOns: editingItem.addOns || []
       });
       showToast(`Added new item: ${editingItem.name}`);
     }
@@ -201,8 +205,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStorefront }) =>
     deleteProduct(id);
   };
 
-  // Update order status
-  const handleUpdateOrderStatus = (orderId: string, newStatus: Order['status']) => {
+  // Update order status and sync to Firestore
+  const handleUpdateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     const updated = orderList.map((o) => {
       if (o.id === orderId) {
         return { ...o, status: newStatus };
@@ -210,7 +214,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStorefront }) =>
       return o;
     });
     setOrderList(updated);
-    showToast(`Updated order ${orderId} to ${newStatus.replace(/_/g, ' ')}`);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        const orderRef = doc(db, 'orders', orderId);
+        await setDoc(orderRef, { status: newStatus }, { merge: true });
+        console.log(`Updated status in Firestore for order ${orderId}: ${newStatus}`);
+      } catch (err) {
+        console.error('Error updating order status in Firestore:', err);
+      }
+    }
+
+    showToast(`Updated order ${orderId} status to ${newStatus}`);
   };
 
   // Kitchen Metrics
@@ -313,6 +328,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStorefront }) =>
           >
             <LayoutDashboard className="w-4 h-4" />
             <span>Kitchen Overview</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('dispatch_queue')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'dispatch_queue'
+                ? 'bg-[#D97706] text-[#2B1006] shadow-md font-extrabold ring-2 ring-[#B45309]'
+                : 'bg-[#FEF3C7] text-[#78350F] hover:bg-[#FDE68A] border border-[#FDE68A]'
+            }`}
+          >
+            <Flame className="w-4 h-4 text-[#D97706]" />
+            <span>Kitchen Dispatch Queue 🔥</span>
           </button>
 
           <button
@@ -612,6 +639,227 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStorefront }) =>
                   </div>
                 ))}
               </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* TAB: KITCHEN DISPATCH QUEUE */}
+        {activeTab === 'dispatch_queue' && (
+          <div className="space-y-6">
+            
+            {/* Top Aggregate Summary Banner */}
+            <div className="bg-[#3B170B] text-[#FEF3C7] border border-[#5C2712] rounded-3xl p-5 shadow-lg space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#5C2712] pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center">
+                    <Flame className="w-6 h-6 text-[#F59E0B]" />
+                  </div>
+                  <div>
+                    <h2 className="font-extrabold text-base sm:text-lg text-white">Live Kitchen Dispatch Queue</h2>
+                    <p className="text-xs text-[#FDE68A]">Organized Tawa Baking Schedule & Order Dispatch</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs font-bold bg-[#2B1006] px-3.5 py-2 rounded-2xl border border-[#5C2712]">
+                  <span>Total Active Scheduled Orders:</span>
+                  <span className="text-amber-400 font-extrabold font-mono-numbers text-sm">
+                    {orderList.filter(o => o.status !== 'delivered').length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Aggregated Baking Totals Calculation */}
+              <div className="bg-[#2B1006] rounded-2xl p-4 border border-[#5C2712] space-y-2">
+                <div className="text-xs font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Flame className="w-4 h-4 text-[#F59E0B]" />
+                  <span>Aggregated Baking Totals for Kitchen Staff</span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 pt-1">
+                  {(() => {
+                    // Aggregate items from all active scheduled orders
+                    const totals: Record<string, number> = {};
+                    let totalRotiCount = 0;
+
+                    orderList.forEach((ord) => {
+                      if (ord.status !== 'delivered') {
+                        ord.items?.forEach((it) => {
+                          const name = it.name;
+                          totals[name] = (totals[name] || 0) + it.quantity;
+                        });
+                        totalRotiCount += ord.totalRotis || 0;
+                      }
+                    });
+
+                    const entries = Object.entries(totals);
+                    if (entries.length === 0) {
+                      return <div className="col-span-full text-xs text-[#DFCBB5] py-1">No pending baking items in dispatch queue.</div>;
+                    }
+
+                    return (
+                      <>
+                        {entries.map(([name, qty]) => (
+                          <div key={name} className="bg-[#3B170B] p-2.5 rounded-xl border border-[#5C2712]">
+                            <div className="text-[11px] text-[#DFCBB5] truncate font-medium">{name}</div>
+                            <div className="text-sm font-extrabold text-amber-300 font-mono-numbers mt-0.5">{qty} Pcs / Packs</div>
+                          </div>
+                        ))}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Scheduled Orders Dispatch List */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-extrabold text-sm text-[#3B170B] uppercase tracking-wider">
+                  Scheduled Orders ({orderList.length})
+                </h3>
+                <span className="text-xs text-[#8B5E3C] font-semibold">
+                  Sorted by dispatch date & slot
+                </span>
+              </div>
+
+              {orderList.length === 0 ? (
+                <div className="bg-white rounded-3xl p-8 text-center border border-[#EFE3D3]">
+                  <ShoppingBag className="w-8 h-8 text-[#D97706] mx-auto mb-2" />
+                  <div className="font-bold text-[#2B1408]">No orders in dispatch queue</div>
+                  <p className="text-xs text-[#8B5E3C] mt-1">New customer bookings will appear here instantly.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {orderList.map((order) => {
+                    const isScheduled = order.status === 'Scheduled';
+                    const isInBaking = order.status === 'In Baking' || order.status === 'kneading_and_baking';
+                    const isOutForDelivery = order.status === 'out_for_delivery';
+                    const isDelivered = order.status === 'delivered';
+
+                    return (
+                      <div 
+                        key={order.id} 
+                        className="bg-white rounded-3xl p-5 border border-[#EFE3D3] shadow-xs space-y-4 flex flex-col justify-between"
+                      >
+                        <div>
+                          {/* Top Row: Order ID, Date & Slot */}
+                          <div className="flex items-center justify-between border-b border-[#EFE3D3] pb-3">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono font-extrabold text-sm text-[#3B170B] bg-[#FEF3C7] px-2 py-0.5 rounded-lg border border-[#FDE68A]">
+                                  #{order.orderId || order.id}
+                                </span>
+                                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                  isDelivered ? 'bg-emerald-100 text-emerald-800' :
+                                  isOutForDelivery ? 'bg-amber-100 text-amber-900' :
+                                  isInBaking ? 'bg-orange-100 text-orange-900' : 'bg-amber-100 text-amber-900'
+                                }`}>
+                                  {order.status}
+                                </span>
+                              </div>
+                              {order.scheduledDate && (
+                                <div className="text-xs font-bold text-[#78350F] mt-1 flex items-center gap-1.5">
+                                  <Calendar className="w-3.5 h-3.5 text-[#D97706]" />
+                                  <span>{order.scheduledDate}</span>
+                                  <span>•</span>
+                                  <span>{order.mealSlot || 'Lunch'}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="text-right font-mono-numbers">
+                              <div className="text-xs font-extrabold text-[#3B170B]">₹{order.finalAmount || order.totalAmount}</div>
+                              <div className="text-[10px] text-[#8B5E3C] font-semibold">{order.paymentMethod}</div>
+                            </div>
+                          </div>
+
+                          {/* Customer Name & Address */}
+                          <div className="pt-3 space-y-1">
+                            <div className="text-xs font-extrabold text-[#2B1408]">
+                              👤 {order.customerName || 'Customer'} <span className="text-[#8B5E3C] font-mono font-normal">({order.customerPhone || '+91 9876543210'})</span>
+                            </div>
+                            <div className="text-xs text-[#8B5E3C] leading-snug">
+                              📍 {typeof order.deliveryAddress === 'string' ? order.deliveryAddress : `${order.deliveryAddress?.houseFlat}, ${order.deliveryAddress?.streetArea}`}
+                            </div>
+                          </div>
+
+                          {/* Items Breakdown */}
+                          <div className="bg-[#FAF4EB] border border-[#DFCBB5] rounded-2xl p-3 mt-3 space-y-1">
+                            <div className="text-[10px] font-extrabold text-[#8B5E3C] uppercase tracking-wider mb-1">Items Breakdown:</div>
+                            {order.items?.map((it, idx) => (
+                              <div key={idx} className="flex items-center justify-between text-xs text-[#2B1408]">
+                                <span>
+                                  <span className="font-extrabold text-[#3B170B]">{it.quantity}x</span> {it.name}
+                                </span>
+                                <span className="font-mono-numbers text-xs font-semibold">₹{it.price * it.quantity}</span>
+                              </div>
+                            ))}
+                            {order.totalRotis ? (
+                              <div className="border-t border-[#E2D2BD] pt-1.5 mt-1 flex items-center justify-between text-xs font-bold text-[#3B170B]">
+                                <span>Total Rotis to Bake:</span>
+                                <span className="text-[#D97706] font-mono-numbers">{order.totalRotis} Pcs</span>
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        {/* Status Updater Button Group */}
+                        <div className="pt-3 border-t border-[#EFE3D3] space-y-1.5">
+                          <div className="text-[10px] font-bold text-[#8B5E3C] uppercase">Kitchen Status Control:</div>
+                          <div className="grid grid-cols-4 gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateOrderStatus(order.id, 'Scheduled')}
+                              className={`py-1.5 text-[10px] font-extrabold rounded-xl border transition-all cursor-pointer ${
+                                order.status === 'Scheduled'
+                                  ? 'bg-amber-800 text-white border-amber-900 shadow-xs'
+                                  : 'bg-[#FAF4EB] text-[#8B5E3C] hover:bg-[#EFE3D3]'
+                              }`}
+                            >
+                              Scheduled
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateOrderStatus(order.id, 'In Baking' as any)}
+                              className={`py-1.5 text-[10px] font-extrabold rounded-xl border transition-all cursor-pointer ${
+                                order.status === 'In Baking' || order.status === 'kneading_and_baking'
+                                  ? 'bg-[#D97706] text-white border-[#B45309] shadow-xs'
+                                  : 'bg-[#FAF4EB] text-[#8B5E3C] hover:bg-[#EFE3D3]'
+                              }`}
+                            >
+                              In Baking
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateOrderStatus(order.id, 'out_for_delivery')}
+                              className={`py-1.5 text-[10px] font-extrabold rounded-xl border transition-all cursor-pointer ${
+                                order.status === 'out_for_delivery'
+                                  ? 'bg-amber-600 text-white border-amber-700 shadow-xs'
+                                  : 'bg-[#FAF4EB] text-[#8B5E3C] hover:bg-[#EFE3D3]'
+                              }`}
+                            >
+                              Dispatched
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateOrderStatus(order.id, 'delivered')}
+                              className={`py-1.5 text-[10px] font-extrabold rounded-xl border transition-all cursor-pointer ${
+                                order.status === 'delivered'
+                                  ? 'bg-emerald-700 text-white border-emerald-800 shadow-xs'
+                                  : 'bg-[#FAF4EB] text-[#8B5E3C] hover:bg-[#EFE3D3]'
+                              }`}
+                            >
+                              Delivered
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
           </div>
@@ -962,15 +1210,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStorefront }) =>
                       </ul>
                     </div>
 
-                    <div>
                       <div className="font-bold text-[#8B5E3C] mb-1">Delivery Address:</div>
                       <div className="font-medium text-[#2B1408]">
-                        {order.deliveryAddress.recipientName} ({order.deliveryAddress.phone})
+                        {typeof order.deliveryAddress === 'string'
+                          ? order.deliveryAddress
+                          : `${order.deliveryAddress.recipientName} (${order.deliveryAddress.phone})`}
                       </div>
-                      <div className="text-[#8B5E3C] mt-0.5">
-                        {order.deliveryAddress.houseFlat}, {order.deliveryAddress.streetArea}, {order.deliveryAddress.city} - {order.deliveryAddress.pincode}
-                      </div>
-                    </div>
+                      {typeof order.deliveryAddress === 'object' && (
+                        <div className="text-[#8B5E3C] mt-0.5">
+                          {order.deliveryAddress.houseFlat}, {order.deliveryAddress.streetArea}, {order.deliveryAddress.city} - {order.deliveryAddress.pincode}
+                        </div>
+                      )}
 
                     <div>
                       <div className="font-bold text-[#8B5E3C] mb-1">Kitchen & Delivery Logistics:</div>
@@ -1174,11 +1424,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStorefront }) =>
                     onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value as any })}
                     className="w-full bg-[#FAF4EB] border border-[#DFCBB5] rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#D97706]"
                   >
+                    <option value="phulkas">Fresh Phulkas & Rotis</option>
+                    <option value="parathas">Stuffed & Flaky Parathas</option>
+                    <option value="theplas">Gujarati Theplas</option>
+                    <option value="rotlas">Rotlas & Millet Bhakris</option>
                     <option value="roti_basket">Roti Basket</option>
                     <option value="specialty_bread">Specialty Bread</option>
-                    <option value="rice_khichdi">Rice & Khichdi</option>
-                    <option value="homestyle_sabzi">Homestyle Sabzi</option>
-                    <option value="dal_accompaniment">Dal Accompaniment</option>
                   </select>
                 </div>
 
@@ -1226,6 +1477,57 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStorefront }) =>
                     placeholder="e.g. MP Wheat, Water"
                     className="w-full bg-[#FAF4EB] border border-[#DFCBB5] rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#D97706]"
                   />
+                </div>
+              </div>
+
+              {/* Add-ons Management */}
+              <div>
+                <label className="font-bold text-[#2B1408] block mb-2">Add-ons</label>
+                <div className="space-y-2 mb-2">
+                  {(editingItem?.addOns || []).map((addon, idx) => (
+                    <div key={idx} className="flex items-center gap-2 bg-white border border-[#DFCBB5] p-2 rounded-lg text-xs">
+                      <span className="flex-1 font-semibold">{addon.name}</span>
+                      <span className="font-mono-numbers">₹{addon.price}</span>
+                      <button 
+                        onClick={() => {
+                          const newAddOns = (editingItem?.addOns || []).filter((_, i) => i !== idx);
+                          setEditingItem({ ...editingItem, addOns: newAddOns });
+                        }}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    id="new-addon-name"
+                    placeholder="Add-on name"
+                    className="flex-1 bg-[#FAF4EB] border border-[#DFCBB5] rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    id="new-addon-price"
+                    placeholder="Price"
+                    className="w-20 bg-[#FAF4EB] border border-[#DFCBB5] rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      const nameInput = document.getElementById('new-addon-name') as HTMLInputElement;
+                      const priceInput = document.getElementById('new-addon-price') as HTMLInputElement;
+                      if (nameInput.value && priceInput.value) {
+                        const newAddOns = [...(editingItem?.addOns || []), { name: nameInput.value, price: Number(priceInput.value) }];
+                        setEditingItem({ ...editingItem, addOns: newAddOns });
+                        nameInput.value = '';
+                        priceInput.value = '';
+                      }
+                    }}
+                    className="bg-[#D97706] text-white px-3 py-2 rounded-xl font-bold text-xs"
+                  >
+                    Add
+                  </button>
                 </div>
               </div>
 

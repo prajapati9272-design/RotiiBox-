@@ -123,7 +123,7 @@ export interface ItemReview {
 export interface RegularMenuItem {
   id: string;
   name: string;
-  category: 'roti_basket' | 'specialty_bread' | 'homestyle_sabzi' | 'dal_accompaniment' | 'combo_box' | 'rice_khichdi';
+  category: 'roti_basket' | 'specialty_bread' | 'phulkas' | 'parathas' | 'theplas' | 'rotlas' | 'homestyle_sabzi' | 'dal_accompaniment' | 'combo_box' | 'rice_khichdi';
   subCategory?: string;
   description: string;
   packSize: string; // e.g., "5 Pcs", "300ml container"
@@ -144,6 +144,7 @@ export interface RegularMenuItem {
   visualTone?: string;
   imageUrl?: string;
   nutritionalInfo?: NutritionalInfo;
+  addOns?: { name: string; price: number }[];
   rating?: number;
   reviewCount?: number;
   reviews?: ItemReview[];
@@ -187,23 +188,33 @@ export interface DeliveryAddress {
   deliveryNotes?: string;
 }
 
+export interface OrderItem {
+  name: string;
+  quantity: number;
+  variant?: string;
+  price: number;
+}
+
 export interface Order {
   id: string;
-  type: 'regular' | 'subscription_charge';
+  orderId?: string;
+  type?: 'regular' | 'subscription_charge' | 'scheduled';
   date: string;
-  items: {
-    name: string;
-    quantity: number;
-    price: number;
-  }[];
+  scheduledDate?: string;
+  mealSlot?: string;
+  customerName?: string;
+  customerPhone?: string;
+  items: OrderItem[];
+  totalRotis?: number;
   totalAmount: number;
   discountAmount: number;
   deliveryFee: number;
   finalAmount: number;
   paymentMethod: 'UPI' | 'Card' | 'COD' | 'Wallet';
-  deliveryAddress: DeliveryAddress;
-  status: 'confirmed' | 'kneading_and_baking' | 'thermal_packed' | 'out_for_delivery' | 'delivered';
-  estimatedDeliveryTime: string;
+  deliveryAddress: DeliveryAddress | string;
+  status: 'Scheduled' | 'In Baking' | 'confirmed' | 'kneading_and_baking' | 'thermal_packed' | 'out_for_delivery' | 'delivered';
+  createdAt?: any;
+  estimatedDeliveryTime?: string;
   liveRiderName?: string;
   liveRiderPhone?: string;
   otp?: string;

@@ -22,10 +22,10 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({ isOpen, onClose })
             </div>
             <div>
               <h2 className="font-display font-bold text-base sm:text-lg text-stone-900 leading-tight">
-                Daily Delivery Calendar & Cutoff Tuning
+                My Daily Meal Schedule
               </h2>
               <p className="text-[11px] text-stone-500">
-                Modify counts, switch grains, or pause delivery before 10:30 AM & 6:30 PM cutoffs
+                Adjust rotis, pick roti type, pause meals, or add extra sabzi & dal for any day
               </p>
             </div>
           </div>

@@ -45,11 +45,11 @@ export const FloatingBottomBar: React.FC<FloatingBottomBarProps> = ({
           </>
         ) : (
           <>
-            <div className="flex items-center gap-2.5 pl-2">
+            <div className="flex items-center gap-2.5 pl-2 cursor-pointer" onClick={onOpenSchedule}>
               <Calendar className="w-4 h-4 text-emerald-300" />
               <div>
-                <div className="font-semibold text-xs leading-tight text-white">
-                  Next Delivery: Tomorrow 12:30 PM
+                <div className="font-semibold text-xs leading-tight text-white underline decoration-emerald-300/50 underline-offset-2">
+                  Next Delivery: Tomorrow
                 </div>
                 <div className="text-[10px] text-emerald-300">
                   {activeSubscription?.rotisPerMeal} Hot Rotis · Editable before 10:30 AM

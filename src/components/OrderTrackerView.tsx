@@ -131,7 +131,7 @@ export const OrderTrackerView: React.FC = () => {
               <div className="text-[11px] text-amber-200/80 mt-0.5 flex items-center gap-2 font-mono-numbers">
                 <span>Total Amount: ₹{lastSuccessfulOrder.finalAmount}</span>
                 <span>•</span>
-                <span>Address: {lastSuccessfulOrder.deliveryAddress?.label || 'Home'}</span>
+                <span>Address: {typeof lastSuccessfulOrder.deliveryAddress === 'object' ? lastSuccessfulOrder.deliveryAddress.label : 'Delivery Address'}</span>
               </div>
             </div>
           </div>

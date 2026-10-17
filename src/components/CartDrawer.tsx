@@ -204,7 +204,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                               ) : null;
                             })()}
                             <div className="flex-1 min-w-0">
-                              <div className="font-bold text-sm text-[#2B1408] truncate">
+                              <div className="font-bold text-xs sm:text-sm text-[#2B1408] leading-tight">
                                 {item.name}
                               </div>
                               <div className="text-[11px] text-[#8B5E3C] flex items-center gap-1.5 mt-0.5">
