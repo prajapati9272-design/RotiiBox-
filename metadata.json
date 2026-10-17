@@ -1,0 +1,6 @@
+{
+  "name": "RottiBox - Fresh Roti Subscriptions & Daily Delivery",
+  "description": "RottiBox - Handcrafted hot rotis delivered fresh daily with flexible cutoff tuning, daily subscriptions, and regular on-demand orders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

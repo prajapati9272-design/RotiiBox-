@@ -1,0 +1,227 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="560" viewBox="0 0 720 560">
+  <defs>
+    <!-- Soft warm drop shadow for overlapping rotis -->
+    <filter id="rotiDropShadow" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="3" dy="6" stdDeviation="6" flood-color="#3d1b06" flood-opacity="0.28" />
+    </filter>
+
+    <filter id="blisterBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="0.6" />
+    </filter>
+
+    <filter id="toastBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.5" />
+    </filter>
+
+    <!-- Dough Radial Gradients for authentic whole wheat depth -->
+    <radialGradient id="doughGrad1" cx="44%" cy="42%" r="58%">
+      <stop offset="0%" stop-color="#FCF3E3" />
+      <stop offset="35%" stop-color="#F2DEBC" />
+      <stop offset="70%" stop-color="#E2C496" />
+      <stop offset="92%" stop-color="#D3AF7D" />
+      <stop offset="100%" stop-color="#BE955F" />
+    </radialGradient>
+
+    <radialGradient id="doughGrad2" cx="48%" cy="46%" r="55%">
+      <stop offset="0%" stop-color="#FBF0DD" />
+      <stop offset="40%" stop-color="#EDD6B1" />
+      <stop offset="75%" stop-color="#DEBC89" />
+      <stop offset="95%" stop-color="#CCA36D" />
+      <stop offset="100%" stop-color="#B88E56" />
+    </radialGradient>
+
+    <radialGradient id="doughGrad3" cx="42%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFF6E8" />
+      <stop offset="30%" stop-color="#F5E3C7" />
+      <stop offset="65%" stop-color="#E7CBA0" />
+      <stop offset="90%" stop-color="#D7B484" />
+      <stop offset="100%" stop-color="#C29A67" />
+    </radialGradient>
+
+    <!-- Flame roast patch gradient -->
+    <radialGradient id="toastPatch1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#A75A1E" stop-opacity="0.65" />
+      <stop offset="60%" stop-color="#C47932" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#DE9F56" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="toastPatch2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#884212" stop-opacity="0.75" />
+      <stop offset="55%" stop-color="#B56723" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#DA9850" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Charred blister markers -->
+    <g id="blisterClusterA">
+      <ellipse cx="0" cy="0" rx="9" ry="6" fill="#3D1807" transform="rotate(-15)" />
+      <ellipse cx="-2" cy="-1" rx="6" ry="3.5" fill="#240D03" transform="rotate(-15)" />
+      <circle cx="8" cy="-5" r="3" fill="#54250B" />
+      <circle cx="-9" cy="4" r="2.5" fill="#69300E" />
+      <circle cx="5" cy="7" r="2" fill="#461C07" />
+      <ellipse cx="-7" cy="-7" rx="3.5" ry="2" fill="#58270C" />
+      <circle cx="13" cy="2" r="1.5" fill="#69300E" />
+      <circle cx="-13" cy="0" r="1.5" fill="#54250B" />
+    </g>
+
+    <g id="blisterClusterB">
+      <ellipse cx="0" cy="0" rx="14" ry="7" fill="#461D09" transform="rotate(25)" />
+      <ellipse cx="1" cy="0" rx="9" ry="4" fill="#290E03" transform="rotate(25)" />
+      <circle cx="12" cy="-8" r="3.5" fill="#5A260B" />
+      <circle cx="-11" cy="6" r="3" fill="#6E310E" />
+      <circle cx="-6" cy="-9" r="2.5" fill="#512209" />
+      <circle cx="9" cy="8" r="2" fill="#753510" />
+      <ellipse cx="16" cy="-2" rx="4" ry="2" fill="#5E280C" />
+      <circle cx="-16" cy="-3" r="1.8" fill="#4A1E08" />
+    </g>
+
+    <g id="blisterClusterC">
+      <ellipse cx="0" cy="0" rx="11" ry="8" fill="#381505" transform="rotate(-35)" />
+      <ellipse cx="0" cy="0" rx="7" ry="5" fill="#1F0A02" transform="rotate(-35)" />
+      <circle cx="-9" cy="-7" r="3.2" fill="#53240A" />
+      <circle cx="8" cy="7" r="3" fill="#6B2E0E" />
+      <circle cx="11" cy="-4" r="2" fill="#491D07" />
+      <ellipse cx="-4" cy="9" rx="3.5" ry="2" fill="#5E280C" />
+      <circle cx="-13" cy="2" r="1.8" fill="#703210" />
+    </g>
+
+    <!-- Individual Roti Archetype 1 (Diameter ~240) -->
+    <g id="roti1" filter="url(#rotiDropShadow)">
+      <!-- Base puffed dough disc with organic edge -->
+      <path d="M 0,-120 C 68,-122 121,-66 120,0 C 122,67 67,121 0,120 C -67,122 -121,68 -120,0 C -122,-68 -69,-121 0,-120 Z" fill="url(#doughGrad1)" stroke="#B88F5B" stroke-width="2" />
+      <!-- Soft dough puff contours -->
+      <path d="M -70,-30 C -40,-70 30,-75 70,-35 C 90,0 80,50 40,80 C 0,95 -60,70 -80,25 Z" fill="none" stroke="#FFF7EB" stroke-width="6" stroke-opacity="0.35" />
+      <path d="M -40,-20 C -10,-45 40,-40 55,-10 C 65,20 35,50 5,55 C -25,55 -50,20 -40,-20 Z" fill="none" stroke="#FFF7EB" stroke-width="4" stroke-opacity="0.45" />
+      <!-- Golden tawa toast patches -->
+      <ellipse cx="-25" cy="-20" rx="65" ry="45" fill="url(#toastPatch1)" filter="url(#toastBlur)" transform="rotate(-10)" />
+      <ellipse cx="35" cy="25" rx="50" ry="38" fill="url(#toastPatch2)" filter="url(#toastBlur)" transform="rotate(20)" />
+      <ellipse cx="10" cy="-55" rx="35" ry="22" fill="url(#toastPatch1)" filter="url(#toastBlur)" />
+      <ellipse cx="-45" cy="45" rx="38" ry="25" fill="url(#toastPatch2)" filter="url(#toastBlur)" />
+      <!-- Authentic charred blister spots -->
+      <use href="#blisterClusterA" x="-20" y="-25" />
+      <use href="#blisterClusterB" x="38" y="28" />
+      <use href="#blisterClusterC" x="12" y="-55" />
+      <use href="#blisterClusterA" x="-45" y="48" transform="rotate(40)" />
+      <use href="#blisterClusterB" x="55" y="-25" transform="scale(0.7)" />
+      <use href="#blisterClusterC" x="-60" y="-10" transform="scale(0.8)" />
+      <!-- Fine blister specks near outer rim -->
+      <circle cx="-85" cy="15" r="2.5" fill="#4A1E08" />
+      <circle cx="-75" cy="45" r="2" fill="#5C260B" />
+      <circle cx="70" cy="55" r="3" fill="#3D1807" />
+      <circle cx="85" cy="-10" r="2.2" fill="#4E2009" />
+      <circle cx="-20" cy="85" r="2.8" fill="#58240A" />
+      <circle cx="30" cy="-85" r="2.5" fill="#421906" />
+      <circle cx="-55" cy="-70" r="3" fill="#3D1807" />
+    </g>
+
+    <!-- Individual Roti Archetype 2 (Diameter ~230) -->
+    <g id="roti2" filter="url(#rotiDropShadow)">
+      <path d="M 0,-115 C 64,-117 116,-63 115,0 C 117,64 63,116 0,115 C -64,117 -116,65 -115,0 C -117,-65 -65,-116 0,-115 Z" fill="url(#doughGrad2)" stroke="#B38954" stroke-width="2" />
+      <path d="M -60,10 C -70,-45 -20,-75 35,-65 C 75,-40 80,25 50,65 C 10,85 -45,65 -60,10 Z" fill="none" stroke="#FFF7EB" stroke-width="5" stroke-opacity="0.4" />
+      <path d="M -30,5 C -35,-25 -5,-45 25,-35 C 50,-20 50,20 25,45 C 0,55 -25,35 -30,5 Z" fill="none" stroke="#FFF7EB" stroke-width="4" stroke-opacity="0.4" />
+      <ellipse cx="20" cy="-15" rx="60" ry="40" fill="url(#toastPatch2)" filter="url(#toastBlur)" transform="rotate(-15)" />
+      <ellipse cx="-30" cy="30" rx="55" ry="35" fill="url(#toastPatch1)" filter="url(#toastBlur)" transform="rotate(15)" />
+      <ellipse cx="45" cy="35" rx="35" ry="25" fill="url(#toastPatch1)" filter="url(#toastBlur)" />
+      <ellipse cx="-35" cy="-45" rx="40" ry="26" fill="url(#toastPatch2)" filter="url(#toastBlur)" />
+      <use href="#blisterClusterB" x="22" y="-18" />
+      <use href="#blisterClusterC" x="-32" y="32" />
+      <use href="#blisterClusterA" x="48" y="38" />
+      <use href="#blisterClusterB" x="-38" y="-48" transform="scale(0.8)" />
+      <use href="#blisterClusterC" x="55" y="-35" transform="scale(0.75)" />
+      <circle cx="80" cy="15" r="2.8" fill="#421A07" />
+      <circle cx="-80" cy="-20" r="2.5" fill="#58240A" />
+      <circle cx="10" cy="80" r="3" fill="#3D1807" />
+      <circle cx="-15" cy="-80" r="2.2" fill="#502109" />
+    </g>
+
+    <!-- Individual Roti Archetype 3 (Diameter ~250) -->
+    <g id="roti3" filter="url(#rotiDropShadow)">
+      <path d="M 0,-125 C 70,-127 127,-69 125,0 C 127,70 69,127 0,125 C -70,127 -127,71 -125,0 C -127,-71 -71,-126 0,-125 Z" fill="url(#doughGrad3)" stroke="#BC925E" stroke-width="2" />
+      <path d="M -75,-25 C -55,-75 25,-85 75,-40 C 95,5 75,65 30,85 C -25,95 -75,55 -80,-5 Z" fill="none" stroke="#FFF7EB" stroke-width="6" stroke-opacity="0.38" />
+      <ellipse cx="-15" cy="15" rx="65" ry="50" fill="url(#toastPatch1)" filter="url(#toastBlur)" transform="rotate(30)" />
+      <ellipse cx="30" cy="-30" rx="55" ry="40" fill="url(#toastPatch2)" filter="url(#toastBlur)" transform="rotate(-25)" />
+      <ellipse cx="-45" cy="-45" rx="40" ry="28" fill="url(#toastPatch2)" filter="url(#toastBlur)" />
+      <ellipse cx="50" cy="45" rx="35" ry="25" fill="url(#toastPatch1)" filter="url(#toastBlur)" />
+      <use href="#blisterClusterC" x="-15" y="15" />
+      <use href="#blisterClusterA" x="32" y="-32" />
+      <use href="#blisterClusterB" x="-46" y="-48" />
+      <use href="#blisterClusterC" x="52" y="46" transform="scale(0.7)" />
+      <circle cx="-90" cy="-15" r="3.2" fill="#3A1706" />
+      <circle cx="85" cy="30" r="2.6" fill="#4B1F08" />
+      <circle cx="-35" cy="85" r="2.4" fill="#57230A" />
+      <circle cx="45" cy="-85" r="3" fill="#3E1807" />
+    </g>
+  </defs>
+
+  <!-- Background base tone in case of any slight edge gap -->
+  <rect width="720" height="560" fill="#DFC18E" />
+
+  <!-- ==============================================================
+       LAYER 1: Under-layer of overlapping rotis across the 720x560 canvas
+       ============================================================== -->
+  <g transform="translate(0, 0)">
+    <use href="#roti1" x="90" y="70" />
+    <use href="#roti2" x="310" y="60" />
+    <use href="#roti3" x="540" y="80" />
+    <use href="#roti1" x="760" y="70" /> <!-- Wrap for horizontal seam -->
+    <use href="#roti2" x="-130" y="60" /> <!-- Wrap for horizontal seam -->
+
+    <use href="#roti3" x="30" y="240" />
+    <use href="#roti1" x="240" y="220" />
+    <use href="#roti2" x="460" y="230" />
+    <use href="#roti3" x="680" y="250" />
+    <use href="#roti1" x="-200" y="220" /> <!-- Wrap -->
+
+    <use href="#roti2" x="110" y="400" />
+    <use href="#roti3" x="330" y="390" />
+    <use href="#roti1" x="550" y="410" />
+    <use href="#roti2" x="770" y="400" /> <!-- Wrap -->
+    <use href="#roti3" x="-110" y="390" /> <!-- Wrap -->
+
+    <!-- Vertical wrap-around row for seamless vertical tiling (y + 560) -->
+    <use href="#roti1" x="90" y="630" />
+    <use href="#roti2" x="310" y="620" />
+    <use href="#roti3" x="540" y="640" />
+    <use href="#roti1" x="760" y="630" />
+    <use href="#roti2" x="-130" y="620" />
+
+    <use href="#roti1" x="90" y="-490" />
+    <use href="#roti2" x="310" y="-500" />
+    <use href="#roti3" x="540" y="-480" />
+  </g>
+
+  <!-- ==============================================================
+       LAYER 2: Top-layer overlapping rotis creating the lush shingled mosaic
+       matching the user's uploaded photographic image
+       ============================================================== -->
+  <g transform="translate(0, 0)">
+    <use href="#roti2" x="200" y="140" transform="rotate(18 200 140)" />
+    <use href="#roti3" x="430" y="130" transform="rotate(-25 430 130)" />
+    <use href="#roti1" x="650" y="150" transform="rotate(35 650 150)" />
+    <use href="#roti1" x="-70" y="150" transform="rotate(35 -70 150)" /> <!-- Wrap -->
+
+    <use href="#roti1" x="120" y="310" transform="rotate(-15 120 310)" />
+    <use href="#roti2" x="350" y="295" transform="rotate(22 350 295)" />
+    <use href="#roti3" x="575" y="315" transform="rotate(-30 575 315)" />
+    <use href="#roti3" x="-145" y="315" transform="rotate(-30 -145 315)" /> <!-- Wrap -->
+
+    <use href="#roti3" x="220" y="480" transform="rotate(12 220 480)" />
+    <use href="#roti1" x="445" y="470" transform="rotate(-18 445 470)" />
+    <use href="#roti2" x="670" y="490" transform="rotate(28 670 490)" />
+    <use href="#roti2" x="-50" y="490" transform="rotate(28 -50 490)" /> <!-- Wrap -->
+
+    <!-- Vertical top wraps -->
+    <use href="#roti3" x="220" y="-80" transform="rotate(12 220 -80)" />
+    <use href="#roti1" x="445" y="-90" transform="rotate(-18 445 -90)" />
+    <use href="#roti2" x="670" y="-70" transform="rotate(28 670 -70)" />
+    <use href="#roti2" x="-50" y="-70" transform="rotate(28 -50 -70)" />
+
+    <!-- Corner wrap (0, 0) and (720, 560) -->
+    <use href="#roti1" x="0" y="0" transform="rotate(45 0 0)" />
+    <use href="#roti1" x="720" y="0" transform="rotate(45 720 0)" />
+    <use href="#roti1" x="0" y="560" transform="rotate(45 0 560)" />
+    <use href="#roti1" x="720" y="560" transform="rotate(45 720 560)" />
+  </g>
+
+  <!-- Gentle atmospheric warmth tint over the entire canvas -->
+  <rect width="720" height="560" fill="#FFF9ED" fill-opacity="0.08" />
+</svg>
